@@ -4,123 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Moje Knihovna</title>
-    <style>
-        /* --- MODERNÍ PROMĚNNÉ A ZÁKLAD --- */
-        :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --bg-color: #f3f4f6;
-            --surface: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --border-light: 1px solid #e5e7eb;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-
-        body { display: flex; height: 100vh; background-color: var(--bg-color); color: var(--text-main); overflow: hidden; flex-direction: column; }
-
-        /* --- PŘIHLAŠOVACÍ OBRAZOVKA --- */
-        #loginScreen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color); display: flex; justify-content: center; align-items: center; z-index: 3000;
-        }
-        .login-box {
-            background: var(--surface); padding: 30px; border-radius: 16px; box-shadow: var(--shadow-hover);
-            width: 90%; max-width: 400px; text-align: center;
-        }
-        .login-box h1 { margin-bottom: 20px; font-size: 24px; color: var(--primary); }
-        .login-box input {
-            width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 16px; /* Prevents iOS zoom */
-        }
-        .login-box button {
-            width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px;
-        }
-
-        /* --- LAYOUT --- */
-        #appScreen { display: none; width: 100%; height: 100%; flex-direction: row; }
-
-        /* --- NAVIGACE (RESPONZIVNÍ) --- */
-        .mobile-header {
-            display: none; background: var(--surface); padding: 15px; border-bottom: var(--border-light);
-            justify-content: space-between; align-items: center; z-index: 100;
-        }
-        .menu-toggle { font-size: 24px; cursor: pointer; background: none; border: none; color: var(--primary); }
-
-        .sidebar {
-            width: 260px; background-color: var(--surface); border-right: var(--border-light);
-            padding: 30px 20px; display: flex; flex-direction: column; z-index: 1000; transition: transform 0.3s ease;
-        }
-
-        /* --- HLAVNÍ OBSAH --- */
-        .main-content { flex: 1; padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .header-top { margin-bottom: 25px; }
-        .search-bar { width: 100%; padding: 12px 20px; border: 1px solid #d1d5db; border-radius: 12px; margin-top: 15px; font-size: 16px; }
-
-        /* --- MŘÍŽKA KNIH --- */
-        .books-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
-            gap: 15px; 
-            padding-bottom: 80px; 
-        }
-        .book-card { background: var(--surface); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-sm); }
-        .book-cover { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; background: #ddd; }
-        .book-info { padding: 10px; }
-        .book-title { font-size: 14px; font-weight: 700; line-height: 1.2; height: 2.4em; overflow: hidden; }
-
-        /* --- PRAVÝ PANEL (FILTRY) --- */
-        .right-panel { width: 240px; background: var(--surface); border-left: var(--border-light); padding: 20px; overflow-y: auto; }
-
-        /* --- MODÁLNÍ OKNO --- */
-        .modal-overlay { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: flex-end; 
-        }
-        .modal { 
-            background: var(--surface); width: 100%; max-width: 500px; 
-            border-radius: 20px 20px 0 0; padding: 25px; max-height: 90vh; overflow-y: auto; 
-        }
-
-        /* --- MOBILNÍ ÚPRAVY --- */
-        @media (max-width: 768px) {
-            #appScreen { flex-direction: column; }
-            .mobile-header { display: flex; }
-            .sidebar {
-                position: fixed; left: 0; top: 0; height: 100%; width: 280px;
-                transform: translateX(-100%);
-            }
-            .sidebar.active { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
-            .right-panel { display: none; } /* Filtry na mobilu skryjeme pro jednoduchost, nebo je lze dát do menu */
-            .header-top h1 { font-size: 24px; }
-            .books-grid { grid-template-columns: repeat(2, 1fr); } /* Na mobilu 2 vedle sebe */
-            
-            .floating-add {
-                position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px;
-                background: var(--primary); color: white; border-radius: 50%;
-                display: flex; align-items: center; justify-content: center; font-size: 30px;
-                box-shadow: var(--shadow-hover); z-index: 90;
-            }
-        }
-
-        /* Pomocné třídy */
-        .hidden { display: none !important; }
-        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 999; }
-        .sidebar-overlay.active { display: block; }
-        
-        /* Styl menu položek */
-        .sidebar li { padding: 12px; list-style: none; cursor: pointer; border-radius: 8px; margin-bottom: 5px; color: var(--text-muted); }
-        .sidebar li.active { background: #eef2ff; color: var(--primary); font-weight: bold; }
-        .user-info { margin-top: auto; padding: 15px 0; border-top: 1px solid #eee; font-size: 14px; }
-        .logout-btn { color: #ef4444; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        
-        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 5px; }
-        .badge-ebook { background: #dcfce7; color: #16a34a; }
-        .badge-physical { background: #fce7f3; color: #db2777; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -129,23 +14,23 @@
     <div id="loginScreen">
         <div class="login-box">
             <h1>Moje Knihovna</h1>
-            <div id="loginError" style="color: red; margin-bottom: 10px; display: none;"></div>
+            <div id="loginError" class="error-msg"></div>
             <input type="text" id="usernameInput" placeholder="Uživatelské jméno" autocomplete="username">
             <input type="password" id="passwordInput" placeholder="Heslo">
-            <button onclick="login()">Přihlásit se</button>
-            <button style="background: #e5e7eb; color: #374151;" onclick="register()">Vytvořit účet</button>
+            <button class="btn-primary" onclick="login()">Přihlásit se</button>
+            <button class="btn-secondary" onclick="register()">Vytvořit účet</button>
         </div>
     </div>
 
     <header class="mobile-header">
         <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-        <strong style="color: var(--primary)">Knihovna</strong>
+        <strong>Knihovna</strong>
         <div style="width: 24px;"></div>
     </header>
 
     <div id="appScreen">
         <aside class="sidebar" id="sidebar">
-            <h2 style="margin-bottom: 20px; color: var(--primary)">Knihovna</h2>
+            <h2>Knihovna</h2>
             <ul id="menuList">
                 <li class="active" onclick="handleMenuClick(this, 'all')">Všechny knihy</li>
                 <li onclick="handleMenuClick(this, 'owned')">Moje knihy</li>
@@ -169,8 +54,9 @@
         </main>
 
         <aside class="right-panel">
-            <h3 style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Filtry</h3>
-            <ul style="list-style: none;" id="genreList"></ul>
+            <h3>Filtry</h3>
+            <ul id="genreList">
+                </ul>
         </aside>
 
         <div class="floating-add" onclick="openModal()">+</div>
@@ -178,205 +64,59 @@
 
     <div class="modal-overlay" id="bookModal">
         <div class="modal">
-            <h2 id="modalTitle" style="margin-bottom: 15px;">Nová kniha</h2>
+            <h2 id="modalTitle">Nová kniha</h2>
             <form id="bookForm" onsubmit="saveBook(event)">
                 <input type="hidden" id="bookId">
-                <div style="margin-bottom: 12px;">
-                    <label style="display:block; font-size:12px; font-weight:bold;">Název</label>
-                    <input type="text" id="bTitle" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; font-size: 16px;">
+                
+                <div class="form-group">
+                    <label>Název</label>
+                    <input type="text" id="bTitle" required>
                 </div>
-                <div style="margin-bottom: 12px;">
-                    <label style="display:block; font-size:12px; font-weight:bold;">Autor</label>
-                    <input type="text" id="bAuthor" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; font-size: 16px;">
+
+                <div class="form-group">
+                    <label>Autor</label>
+                    <input type="text" id="bAuthor" required>
                 </div>
-                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-                    <div style="flex:1">
-                        <label style="display:block; font-size:12px; font-weight:bold;">Formát</label>
-                        <select id="bFormat" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Formát</label>
+                        <select id="bFormat">
                             <option value="Fyzická">Fyzická</option>
                             <option value="E-book">E-book</option>
                         </select>
                     </div>
-                    <div style="flex:1">
-                        <label style="display:block; font-size:12px; font-weight:bold;">Stav</label>
-                        <select id="bReadStatus" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                    <div class="form-group">
+                        <label>Stav</label>
+                        <select id="bReadStatus">
                             <option value="Nepřečteno">Nepřečteno</option>
                             <option value="Ve čtení">Rozečteno</option>
                             <option value="Dočteno">Dočteno</option>
                         </select>
                     </div>
                 </div>
-                <div style="margin-bottom: 12px;">
-                    <label style="display:block; font-size:12px; font-weight:bold;">Vlastnictví</label>
-                    <select id="bOwnership" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+
+                <div class="form-group">
+                    <label>Vlastnictví</label>
+                    <select id="bOwnership">
                         <option value="Vlastní">Vlastním</option>
                         <option value="Wishlist">Wishlist</option>
                         <option value="Půjčeno (cizí)">Mám půjčeno</option>
                     </select>
                 </div>
-                <div id="deleteBtnContainer" style="display:none; margin-bottom: 15px;">
-                    <button type="button" onclick="deleteBook()" style="color: #ef4444; background: none; border: none; cursor: pointer; font-size: 13px;">🗑️ Smazat knihu</button>
+
+                <div id="deleteBtnContainer" class="hidden">
+                    <button type="button" class="btn-delete" onclick="deleteBook()">🗑️ Smazat knihu</button>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <button type="button" onclick="closeModal()" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ddd; background:#eee;">Zrušit</button>
-                    <button type="submit" style="flex:1; padding:12px; border-radius:8px; border:none; background:var(--primary); color:white; font-weight:bold;">Uložit</button>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Zrušit</button>
+                    <button type="submit" class="btn-save">Uložit</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script>
-        let users = JSON.parse(localStorage.getItem('library_users') || '[]');
-        let allBooks = JSON.parse(localStorage.getItem('library_books') || '[]');
-        let currentUser = localStorage.getItem('library_session');
-
-        // --- AUTH ---
-        function login() {
-            const u = document.getElementById('usernameInput').value.trim();
-            const p = document.getElementById('passwordInput').value;
-            const user = users.find(x => x.username === u && x.password === p);
-            if (user) {
-                currentUser = u;
-                localStorage.setItem('library_session', u);
-                showApp();
-            } else {
-                const err = document.getElementById('loginError');
-                err.innerText = "Chybné údaje";
-                err.style.display = "block";
-            }
-        }
-
-        function register() {
-            const u = document.getElementById('usernameInput').value.trim();
-            const p = document.getElementById('passwordInput').value;
-            if (u.length < 3) return alert("Krátké jméno");
-            if (users.find(x => x.username === u)) return alert("Uživatel existuje");
-            users.push({username: u, password: p});
-            localStorage.setItem('library_users', JSON.stringify(users));
-            login();
-        }
-
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('library_session');
-            location.reload();
-        }
-
-        // --- UI LOGIC ---
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('sidebarOverlay').classList.toggle('active');
-        }
-
-        function handleMenuClick(el, type) {
-            document.querySelectorAll('#menuList li').forEach(li => li.classList.remove('active'));
-            el.classList.add('active');
-            if (window.innerWidth <= 768) toggleMenu();
-            
-            if (type === 'all') renderBooks(getUserBooks().filter(b => b.ownership !== 'Wishlist'));
-            if (type === 'owned') renderBooks(getUserBooks().filter(b => b.ownership === 'Vlastní'));
-            if (type === 'read') renderBooks(getUserBooks().filter(b => b.readStatus === 'Dočteno'));
-            if (type === 'wishlist') renderBooks(getUserBooks().filter(b => b.ownership === 'Wishlist'));
-            
-            document.getElementById('pageTitle').innerText = el.innerText;
-        }
-
-        function showApp() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('appScreen').style.display = 'flex';
-            document.getElementById('loggedUserName').innerText = currentUser;
-            renderBooks(getUserBooks().filter(b => b.ownership !== 'Wishlist'));
-        }
-
-        function getUserBooks() {
-            return allBooks.filter(b => b.owner === currentUser);
-        }
-
-        function renderBooks(books = getUserBooks()) {
-            const grid = document.getElementById('booksGrid');
-            grid.innerHTML = books.map(book => `
-                <div class="book-card" onclick="editBook(${book.id})">
-                    <div class="book-cover" style="display:flex; align-items:center; justify-content:center; background:#6366f1; color:white; padding:10px; font-size:10px; text-align:center;">
-                        ${book.title}
-                    </div>
-                    <div class="book-info">
-                        <div class="book-title">${book.title}</div>
-                        <div style="font-size:12px; color:#6b7280;">${book.author}</div>
-                        <span class="badge ${book.format === 'E-book' ? 'badge-ebook' : 'badge-physical'}">${book.format}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function searchBooks() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = getUserBooks().filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q));
-            renderBooks(filtered);
-        }
-
-        // --- MODAL & DATA ---
-        function openModal() {
-            document.getElementById('bookForm').reset();
-            document.getElementById('bookId').value = '';
-            document.getElementById('modalTitle').innerText = "Nová kniha";
-            document.getElementById('deleteBtnContainer').style.display = 'none';
-            document.getElementById('bookModal').style.display = 'flex';
-        }
-
-        function closeModal() { document.getElementById('bookModal').style.display = 'none'; }
-
-        function editBook(id) {
-            const book = allBooks.find(b => b.id === id);
-            if (!book) return;
-            document.getElementById('bookId').value = book.id;
-            document.getElementById('bTitle').value = book.title;
-            document.getElementById('bAuthor').value = book.author;
-            document.getElementById('bFormat').value = book.format;
-            document.getElementById('bReadStatus').value = book.readStatus;
-            document.getElementById('bOwnership').value = book.ownership;
-            document.getElementById('modalTitle').innerText = "Upravit knihu";
-            document.getElementById('deleteBtnContainer').style.display = 'block';
-            document.getElementById('bookModal').style.display = 'flex';
-        }
-
-        function saveBook(e) {
-            e.preventDefault();
-            const id = document.getElementById('bookId').value;
-            const bookData = {
-                id: id ? parseInt(id) : Date.now(),
-                owner: currentUser,
-                title: document.getElementById('bTitle').value,
-                author: document.getElementById('bAuthor').value,
-                format: document.getElementById('bFormat').value,
-                readStatus: document.getElementById('bReadStatus').value,
-                ownership: document.getElementById('bOwnership').value
-            };
-
-            if (id) {
-                const idx = allBooks.findIndex(b => b.id === parseInt(id));
-                allBooks[idx] = bookData;
-            } else {
-                allBooks.push(bookData);
-            }
-
-            localStorage.setItem('library_books', JSON.stringify(allBooks));
-            closeModal();
-            renderBooks(getUserBooks().filter(b => b.ownership !== 'Wishlist'));
-        }
-
-        function deleteBook() {
-            const id = parseInt(document.getElementById('bookId').value);
-            if (confirm("Smazat tuto knihu?")) {
-                allBooks = allBooks.filter(b => b.id !== id);
-                localStorage.setItem('library_books', JSON.stringify(allBooks));
-                closeModal();
-                renderBooks(getUserBooks());
-            }
-        }
-
-        window.onload = () => {
-            if (currentUser) showApp();
-        };
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
