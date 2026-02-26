@@ -1,0 +1,14 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "zaple22119-afk.github",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "zaple22119-afk.github",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "categories": [
+    "books"
+  ]
+}
